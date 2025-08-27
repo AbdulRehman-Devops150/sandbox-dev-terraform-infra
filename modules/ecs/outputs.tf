@@ -1,11 +1,12 @@
+
 output "task_execution_role_arn" {
   description = "ARN of the task execution role"
-  value       = coalesce(var.task_execution_role_arn, aws_iam_role.task_execution_role[0].arn)
+  value       = var.task_execution_role_arn
 }
 
 output "task_role_arn" {
   description = "ARN of the task role"
-  value       = coalesce(var.task_role_arn, aws_iam_role.task_role[0].arn)
+  value       = var.task_role_arn
 }
 
 output "cluster_id" {
