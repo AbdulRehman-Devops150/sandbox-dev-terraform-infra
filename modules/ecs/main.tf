@@ -1,3 +1,4 @@
+
 # Data source for current caller identity
 data "aws_caller_identity" "current" {}
 
@@ -77,80 +78,6 @@ resource "aws_service_discovery_service" "app" {
   }
 }
 
-# IAM role for ECS task execution
-resource "aws_iam_role" "task_execution_role" {
-  count = var.task_execution_role_arn == null ? 1 : 0
-  name  = "${var.name_prefix}-ecs-task-execution-role-v2"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.name_prefix}-task-execution-role"
-  }
-}
-
-# IAM role policy attachment for ECS task execution
-resource "aws_iam_role_policy_attachment" "task_execution_role_policy" {
-  count      = var.task_execution_role_arn == null ? 1 : 0
-  role       = aws_iam_role.task_execution_role[0].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-# Additional IAM policy for CloudWatch logs
-resource "aws_iam_role_policy" "task_execution_role_cloudwatch" {
-  count = var.task_execution_role_arn == null ? 1 : 0
-  name  = "${var.name_prefix}-task-execution-cloudwatch"
-  role  = aws_iam_role.task_execution_role[0].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "${aws_cloudwatch_log_group.ecs_logs.arn}:*"
-      }
-    ]
-  })
-}
-
-# IAM role for ECS task
-resource "aws_iam_role" "task_role" {
-  count = var.task_role_arn == null ? 1 : 0
-  name  = "${var.name_prefix}-ecs-task-role-v2"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.name_prefix}-task-role"
-  }
-}
-
 # ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "${var.name_prefix}-task"
@@ -158,8 +85,8 @@ resource "aws_ecs_task_definition" "app" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.task_cpu
   memory                   = var.task_memory
-  execution_role_arn       = coalesce(var.task_execution_role_arn, aws_iam_role.task_execution_role[0].arn)
-  task_role_arn            = coalesce(var.task_role_arn, aws_iam_role.task_role[0].arn)
+  execution_role_arn       = var.task_execution_role_arn
+  task_role_arn            = var.task_role_arn
 
   container_definitions = jsonencode([
     {
@@ -241,10 +168,6 @@ resource "aws_ecs_service" "app" {
 
   # Force new deployment when task definition changes
   force_new_deployment = true
-
-  depends_on = [
-    aws_iam_role_policy_attachment.task_execution_role_policy
-  ]
 
   tags = {
     Name = "${var.name_prefix}-service"
