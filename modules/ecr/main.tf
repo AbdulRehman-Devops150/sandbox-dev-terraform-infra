@@ -6,18 +6,13 @@ data "aws_caller_identity" "current" {}
 
 # Build a non-empty list of valid AWS principals:
 # - account root
-# - the roles created in this module
 # - any extras from var.allowed_principals (list(string), may be empty)
 locals {
   base_principals = [
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
   ]
-  role_principals = [
-    aws_iam_role.ecs_task_execution_role.arn,
-    aws_iam_role.ecs_task_role.arn,
-  ]
   extra_principals = var.allowed_principals != null ? var.allowed_principals : []
-  allowed_principals = compact(concat(local.base_principals, local.role_principals, local.extra_principals))
+  allowed_principals = compact(concat(local.base_principals, local.extra_principals))
 }
 
 #############################
@@ -81,7 +76,7 @@ resource "aws_ecr_lifecycle_policy" "main" {
 #############################
 # Task Execution Role
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.name_prefix}-ecs-task-execution-role"
+  name = "${var.name_prefix}-ecs-task-execution-role-v3"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -110,7 +105,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_ecr_policy" {
 
 # Task Role (application runtime)
 resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.name_prefix}-ecs-task-role"
+  name = "${var.name_prefix}-ecs-task-role-v3"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -124,25 +119,4 @@ resource "aws_iam_role" "ecs_task_role" {
   tags = {
     Name = "${var.name_prefix}-ecs-task-role"
   }
-}
-
-# ECR Repository outputs (defined here to avoid conflicts)
-output "repository_url" {
-  description = "URL of the ECR repository"
-  value       = aws_ecr_repository.main.repository_url
-}
-
-output "repository_arn" {
-  description = "ARN of the ECR repository"
-  value       = aws_ecr_repository.main.arn
-}
-
-output "repository_name" {
-  description = "Name of the ECR repository"
-  value       = aws_ecr_repository.main.name
-}
-
-output "registry_id" {
-  description = "Registry ID where the repository was created"
-  value       = aws_ecr_repository.main.registry_id
 }
