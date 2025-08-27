@@ -1,4 +1,3 @@
-
 # IAM Role outputs for ECS module integration (ECR repository outputs are already defined in main.tf)
 
 output "ecs_task_execution_role_arn" {
