@@ -157,6 +157,6 @@ module "ecs" {
   enable_execute_command             = false
   
   # Use IAM roles from ECR module to avoid conflicts
-  task_execution_role_arn            = module.ecr.task_execution_role_arn
-  task_role_arn                      = module.ecr.task_role_arn
+  task_execution_role_arn             = module.ecr.ecs_task_execution_role_arn
+  task_role_arn                      = module.ecr.ecs_task_role_arn
 }
