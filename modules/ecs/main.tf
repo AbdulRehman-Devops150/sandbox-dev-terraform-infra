@@ -11,7 +11,7 @@ data "aws_availability_zones" "available" {
 
 # CloudWatch Log Group for ECS tasks
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/aws/ecs/${var.name_prefix}"
+  name              = "/aws/ecs/${var.name_prefix}-v2"
   retention_in_days = var.log_retention_days
 
   tags = {
@@ -80,7 +80,7 @@ resource "aws_service_discovery_service" "app" {
 # IAM role for ECS task execution
 resource "aws_iam_role" "task_execution_role" {
   count = var.task_execution_role_arn == null ? 1 : 0
-  name  = "${var.name_prefix}-task-execution-role"
+  name  = "${var.name_prefix}-ecs-task-execution-role-v2"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -131,7 +131,7 @@ resource "aws_iam_role_policy" "task_execution_role_cloudwatch" {
 # IAM role for ECS task
 resource "aws_iam_role" "task_role" {
   count = var.task_role_arn == null ? 1 : 0
-  name  = "${var.name_prefix}-task-role"
+  name  = "${var.name_prefix}-ecs-task-role-v2"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -159,7 +159,7 @@ resource "aws_ecs_task_definition" "app" {
   cpu                      = var.task_cpu
   memory                   = var.task_memory
   execution_role_arn       = coalesce(var.task_execution_role_arn, aws_iam_role.task_execution_role[0].arn)
-  task_role_arn           = coalesce(var.task_role_arn, aws_iam_role.task_role[0].arn)
+  task_role_arn            = coalesce(var.task_role_arn, aws_iam_role.task_role[0].arn)
 
   container_definitions = jsonencode([
     {
@@ -214,7 +214,7 @@ resource "aws_ecs_service" "app" {
 
   # Multi-AZ deployment configuration
   network_configuration {
-    subnets         = var.private_subnet_ids # This ensures multi-AZ deployment across all private subnets
+    subnets          = var.private_subnet_ids # This ensures multi-AZ deployment across all private subnets
     security_groups  = var.security_group_ids
     assign_public_ip = false
   }
