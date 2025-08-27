@@ -1,3 +1,4 @@
+
 variable "name_prefix" {
   description = "Prefix for resource names"
   type        = string
@@ -155,15 +156,13 @@ variable "secrets" {
 }
 
 variable "task_execution_role_arn" {
-  description = "ARN of the task execution role (optional, will be created if null)"
+  description = "ARN of the task execution role"
   type        = string
-  default     = null
 }
 
 variable "task_role_arn" {
-  description = "ARN of the task role (optional, will be created if null)"
+  description = "ARN of the task role"
   type        = string
-  default     = null
 }
 
 variable "max_capacity" {
