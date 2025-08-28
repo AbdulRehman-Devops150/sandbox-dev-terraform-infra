@@ -68,7 +68,6 @@ resource "aws_subnet" "private" {
 }
 
 # NAT Gateways (commented out as requested)
-/*
 resource "aws_nat_gateway" "main" {
   count = var.enable_nat_gateway ? length(var.public_subnet_cidrs) : 0
 
@@ -81,7 +80,6 @@ resource "aws_nat_gateway" "main" {
 
   depends_on = [aws_internet_gateway.main]
 }
-*/
 
 # Public Route Table
 resource "aws_route_table" "public" {
@@ -104,12 +102,10 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   # Uncomment when NAT Gateway is enabled
-  /*
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = var.enable_nat_gateway ? aws_nat_gateway.main[count.index].id : null
   }
-  */
 
   tags = {
     Name = "${var.name_prefix}-private-rt-${count.index + 1}"
