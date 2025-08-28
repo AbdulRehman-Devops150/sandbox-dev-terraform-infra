@@ -86,6 +86,7 @@ module "vpc" {
   public_subnet_cidrs  = local.public_subnet_cidrs
   private_subnet_cidrs = local.private_subnet_cidrs
   enable_nat_gateway   = true
+  single_nat_gateway   = true
 }
 
 # Security Group Module
