@@ -25,7 +25,6 @@ resource "aws_internet_gateway" "main" {
 }
 
 # Elastic IPs for NAT Gateways
-/*
 resource "aws_eip" "nat" {
   count  = var.enable_nat_gateway ? length(var.public_subnet_cidrs) : 0
   domain = "vpc"
@@ -36,7 +35,6 @@ resource "aws_eip" "nat" {
     Name = "${var.name_prefix}-eip-${count.index + 1}"
   }
 }
-*/
 
 # Public Subnets
 resource "aws_subnet" "public" {
@@ -67,7 +65,7 @@ resource "aws_subnet" "private" {
   }
 }
 
-# NAT Gateways (commented out as requested)
+# NAT Gateways
 resource "aws_nat_gateway" "main" {
   count = var.enable_nat_gateway ? length(var.public_subnet_cidrs) : 0
 
@@ -101,10 +99,12 @@ resource "aws_route_table" "private" {
 
   vpc_id = aws_vpc.main.id
 
-  # Uncomment when NAT Gateway is enabled
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = var.enable_nat_gateway ? aws_nat_gateway.main[count.index].id : null
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.main[count.index].id
+    }
   }
 
   tags = {
