@@ -1,3 +1,4 @@
+
 # AWS Provider Configuration
 terraform {
   required_version = ">= 1.0"
@@ -84,6 +85,7 @@ module "vpc" {
   vpc_cidr             = local.vpc_cidr
   public_subnet_cidrs  = local.public_subnet_cidrs
   private_subnet_cidrs = local.private_subnet_cidrs
+  enable_nat_gateway   = true
 }
 
 # Security Group Module
