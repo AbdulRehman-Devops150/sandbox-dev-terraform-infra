@@ -46,7 +46,12 @@ output "private_route_table_ids" {
 
 output "nat_gateway_ids" {
   description = "IDs of the NAT Gateways"
-  value       = [] # Empty since NAT Gateways are commented out
+  value       = var.enable_nat_gateway ? aws_nat_gateway.main[*].id : []
+}
+
+output "eip_allocation_ids" {
+  description = "Allocation IDs of the Elastic IPs for NAT Gateways"
+  value       = var.enable_nat_gateway ? aws_eip.nat[*].allocation_id : []
 }
 
 output "availability_zones" {
