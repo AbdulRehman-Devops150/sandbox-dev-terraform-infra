@@ -1,5 +1,4 @@
 
-
 variable "name_prefix" {
   description = "Name prefix for all resources"
   type        = string
@@ -27,4 +26,10 @@ variable "enable_nat_gateway" {
   description = "Enable NAT Gateway for private subnets"
   type        = bool
   default     = false
+}
+
+variable "single_nat_gateway" {
+  description = "Use a single NAT Gateway for all private subnets (cost-effective for dev environments)"
+  type        = bool
+  default     = true
 }
