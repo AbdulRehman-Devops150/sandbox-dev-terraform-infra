@@ -6,7 +6,7 @@ on:
     paths:
       - 'environments/**'
       - 'modules/**'
-      - '.github/workflows/deploy.yml'      # only this workflow file
+      - '.github/workflows/deploy.yml'      #  only this workflow file
   pull_request:
     branches: [ main, develop ]
     paths:
